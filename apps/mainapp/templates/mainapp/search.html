@@ -1,0 +1,22 @@
+
+<table>
+        <th>Tag Number</th>
+        <th>State</th>
+        <th>Year</th>
+        <th>Make</th>
+        <th>Model</th>
+        <th>Color</th>
+        <th>Notice Date</th>
+        {%for notice in data%}
+        <tr>
+            <td>{{notice.TagNumber}}</td>
+            <td>{{notice.State}}</td>
+            <td>{{notice.Year}}</td>
+            <td>{{notice.Make}}</td>
+            <td>{{notice.Model}}</td>
+            <td>{{notice.Color}}</td>
+            <td>{{notice.NoticeDate}}</td>
+        </tr>
+        {%endfor%}
+
+    </table>

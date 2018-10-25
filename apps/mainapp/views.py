@@ -17,3 +17,5 @@ def find(request):
         'data':newdata
     }
     return render(request,'mainapp/search.html',context)
+def processimage(request):
+    return 'hello'

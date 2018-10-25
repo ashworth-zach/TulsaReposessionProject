@@ -3,5 +3,7 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index),
     url(r'^find$', views.find),
+    url(r'^processimage$', views.processimage),
+
 
 ]  

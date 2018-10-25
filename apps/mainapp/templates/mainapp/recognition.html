@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'mainapp/css/style.css' %}" media="all">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>edit wish</title>
+</head>
+
+<body onload="init();">
+    <h1 class="jumbotron text-center">check reposessions for {{platenumber}}</h1>
+        <a href="/">Go back to main page</a>
+    <form action='/find' method='post' class='ajax_form'>
+        Find specific tag
+        {% csrf_token %}
+        <input type='text' name='tagstartswith' value='{{platenumber}}' id='ajax_tag' />
+    </form>
+
+
+    <p>last updated {{data.0.ListUpdateDate}}</p>
+
+    <div class="container" id='table'>
+        <table>
+            <th>Tag Number</th>
+            <th>State</th>
+            <th>Year</th>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Color</th>
+            <th>Notice Date</th>
+            {%for notice in data%}
+
+            <tr>
+                <td>{{notice.TagNumber}}</td>
+                <td>{{notice.State}}</td>
+                <td>{{notice.Year}}</td>
+                <td>{{notice.Make}}</td>
+                <td>{{notice.Model}}</td>
+                <td>{{notice.Color}}</td>
+                <td>{{notice.NoticeDate}}</td>
+            </tr>
+            {%endfor%}
+        </table>
+    </div>
+
+
+
+
+    <script>
+        $('.ajax_form').submit(function (e) {
+            e.preventDefault()
+        })
+        $('#ajax_tag').keyup(function () {
+            console.log('Sending Ajax request to /find')
+            console.log('Submitting the following data', $(this).parent().serialize())
+            $.ajax({
+                url: '/find',
+                /* Where should this go? */
+                method: 'post',
+                /* Which HTTP verb? */
+                data: $(this).parent().serialize(),
+                /* Any data to send along? */
+                success: function (serverResponse) { /* What code should we run when the server responds? */
+                    $('#table').html(serverResponse)
+                }
+            })
+        });
+    </script>
+
+
+</body>
+
+</html>

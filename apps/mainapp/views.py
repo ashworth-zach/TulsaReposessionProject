@@ -18,4 +18,6 @@ def find(request):
     }
     return render(request,'mainapp/search.html',context)
 def processimage(request):
-    return 'hello'
+    print(request.POST['canvasData'])
+    
+    return render(request 'search.html',context)

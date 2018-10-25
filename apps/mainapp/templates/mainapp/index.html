@@ -25,9 +25,11 @@
     <video onclick="snapshot(this);" width=400 height=400 id="video" controls autoplay></video>
     <p>Screenshots :</p>
     <form action="/processimage" method="post" id="myForm">{% csrf_token %}
-        <input type="button" value="Upload" onclick="upload()"></form>
+        <input type="button" value="Upload" id="uploadbtn" onclick="upload()">
+        <input type="hidden" name='canvasData' id="canvasdata">
+        <input type="submit" value="submit">
+    </form>
     <canvas id="myCanvas" width="400" height="350"></canvas>
-
     <script>
         //--------------------
         // GET USER MEDIA CODE
@@ -84,22 +86,10 @@
 
         function snapshot() {
             // Draws current image from the video element into the canvas
-            x = ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         }
-        function upload() {
-            console.log("Uploading...")
-            var image = x;//document.getElementById('myCanvas').src;
-            var form = document.getElementById('myForm');
-            var formData = new FormData(form);
-            formData.append("file", image);
-            console.log(formData);
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("POST", "/processimage");
-            xmlhttp.send(formData);
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                alert(xmlhttp.responseText);
-            }
-
+        function upload(){
+            $('#canvasdata')[0].value = $('#myCanvas')[0].toDataURL();
         }
 
     </script>
@@ -150,9 +140,12 @@
             console.log('Sending Ajax request to /find')
             console.log('Submitting the following data', $(this).parent().serialize())
             $.ajax({
-                url: '/find', /* Where should this go? */
-                method: 'post', /* Which HTTP verb? */
-                data: $(this).parent().serialize(), /* Any data to send along? */
+                url: '/find',
+                /* Where should this go? */
+                method: 'post',
+                /* Which HTTP verb? */
+                data: $(this).parent().serialize(),
+                /* Any data to send along? */
                 success: function (serverResponse) { /* What code should we run when the server responds? */
                     $('#table').html(serverResponse)
                 }

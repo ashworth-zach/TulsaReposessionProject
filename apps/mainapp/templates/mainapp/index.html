@@ -10,151 +10,233 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
         crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <title>edit wish</title>
+    <title>Tulsa Repo List</title>
 </head>
 
 <body onload="init();">
-    <h1 class="jumbotron text-center">check reposessions</h1>
-    <h1>Take a snapshot to check your tag</h1>
-    Click on the Start WebCam button.
-    <p>
-        <button onclick="startWebcam();">Start WebCam</button>
-        <button onclick="stopWebcam();">Stop WebCam</button>
-        <button onclick="snapshot();">Take Snapshot</button>
-    </p>
-    <video onclick="snapshot(this);" width=400 height=400 id="video" controls autoplay></video>
-    <p>Screenshots :</p>
-    <form action="/processimage" method="post" id="myForm">{% csrf_token %}
-        <input type="button" value="Upload" id="uploadbtn" onclick="upload()">
-        <input type="hidden" name='canvasData' id="canvasdata">
-        <input type="submit" value="submit">
-    </form>
-    <canvas id="myCanvas" width="400" height="350"></canvas>
-    <script>
-        //--------------------
-        // GET USER MEDIA CODE
-        //--------------------
-        navigator.getUserMedia = (navigator.getUserMedia ||
-            navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia ||
-            navigator.msGetUserMedia);
+    <h1 class="jumbotron bg-primary text-center">check reposessions</h1>
+    <div class="container">
+        <div class="errorbox">
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li {% if message.errors %} class="{{ message.errors }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <h1>Take a snapshot to check your tag</h1>
+        Click on the Start WebCam button. (please upload before submitting)
+        <p>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="startWebcam();">Start WebCam</button>
+                <button class="btn btn-primary" onclick="stopWebcam();">Stop WebCam</button>
+                <button class="btn btn-primary" onclick="snapshot();">Take Snapshot</button>
+                <button class="btn btn-primary" onclick="upload()">Upload</button>
+            </div>
+        </p>
+        <div class="row">
+            <div class="col-sm-3">
+                <video onclick="snapshot(this);" width=400 height=400 id="video" controls autoplay></video>
 
-        var video;
-        var webcamStream;
-        var x;
-        function startWebcam() {
-            if (navigator.getUserMedia) {
-                navigator.getUserMedia(
+            </div>
+            <div class="col-sm-3">
+                <canvas id="myCanvas" width="400" height="350"></canvas>
+            </div>
+        </div>
+        <form action="/processimage" method="post" id="myForm">{% csrf_token %}
+            <input type="hidden" name='canvasData' id="canvasdata">
+            <input class="btn btn-primary" type="submit" value="submit">
+        </form>
 
-                    // constraints
-                    {
-                        video: true,
-                        audio: false
-                    },
-
-                    // successCallback
-                    function (localMediaStream) {
-                        video = document.querySelector('video');
-                        video.src = window.URL.createObjectURL(localMediaStream);
-                        webcamStream = localMediaStream;
-                    },
-
-                    // errorCallback
-                    function (err) {
-                        console.log("The following error occured: " + err);
-                    }
-                );
-            } else {
-                console.log("getUserMedia not supported");
-            }
-        }
-
-        function stopWebcam() {
-            webcamStream.stop();
-        }
-        //---------------------
-        // TAKE A SNAPSHOT CODE
-        //---------------------
-        var canvas, ctx;
-
-        function init() {
-            // Get the canvas and obtain a context for
-            // drawing in it
-            canvas = document.getElementById("myCanvas");
-            ctx = canvas.getContext('2d');
-        }
-
-        function snapshot() {
-            // Draws current image from the video element into the canvas
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        }
-        function upload(){
-            var result = $('#myCanvas')[0].toDataURL();
-            var strImage = result.replace(/^data:image\/[a-z]+;base64,/, "");
-            $('#canvasdata')[0].value = strImage
-        }
-
-    </script>
+        <form action='/find' method='post' class='ajax_form'>
+            Find specific tag
+            {% csrf_token %}
+            <input type='text' name='tagstartswith' id='ajax_tag' />
+        </form>
 
 
+        <p>last updated {{data.0.ListUpdateDate}}</p>
 
-    <form action='/find' method='post' class='ajax_form'>
-        Find specific tag
-        {% csrf_token %}
-        <input type='text' name='tagstartswith' id='ajax_tag' />
-    </form>
+        <div class="container" style="margin-top:35px">
+            <h4>Select Number of Rows</h4>
+            <div class="form-group">
+                <select name="state" id="maxRows" class="form-control" style="width:150px;">
+                    <option value="5000">Show All</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="75">75</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <table id="mytable" class="table table-bordered table-dark table-striped">
+                <th>Tag Number</th>
+                <th>State</th>
+                <th>Year</th>
+                <th>Make</th>
+                <th>Model</th>
+                <th>Color</th>
+                <th>Notice Date</th>
+                {%for notice in data%}
 
+                <tr>
+                    <td>{{notice.TagNumber}}</td>
+                    <td>{{notice.State}}</td>
+                    <td>{{notice.Year}}</td>
+                    <td>{{notice.Make}}</td>
+                    <td>{{notice.Model}}</td>
+                    <td>{{notice.Color}}</td>
+                    <td>{{notice.NoticeDate}}</td>
+                </tr>
+                {%endfor%}
+            </table>
+            <div class="pagination-container">
+                <nav>
+                    <ul class="pagination"></ul>
+                </nav>
+            </div>
+        </div>
 
-    <p>last updated {{data.0.ListUpdateDate}}</p>
+        <footer class="container bg-dark">
+            <p class="color-white">Zach Ashworth 2018 </p>
+            <a href="https://github.com/ashworth-zach">Github</a>
+        </footer>
 
-    <div class="container" id='table'>
-        <table>
-            <th>Tag Number</th>
-            <th>State</th>
-            <th>Year</th>
-            <th>Make</th>
-            <th>Model</th>
-            <th>Color</th>
-            <th>Notice Date</th>
-            {%for notice in data%}
-
-            <tr>
-                <td>{{notice.TagNumber}}</td>
-                <td>{{notice.State}}</td>
-                <td>{{notice.Year}}</td>
-                <td>{{notice.Make}}</td>
-                <td>{{notice.Model}}</td>
-                <td>{{notice.Color}}</td>
-                <td>{{notice.NoticeDate}}</td>
-            </tr>
-            {%endfor%}
-        </table>
-    </div>
-
-
-
-
-    <script>
-        $('.ajax_form').submit(function (e) {
-            e.preventDefault()
-        })
-        $('#ajax_tag').keyup(function () {
-            console.log('Sending Ajax request to /find')
-            console.log('Submitting the following data', $(this).parent().serialize())
-            $.ajax({
-                url: '/find',
-                /* Where should this go? */
-                method: 'post',
-                /* Which HTTP verb? */
-                data: $(this).parent().serialize(),
-                /* Any data to send along? */
-                success: function (serverResponse) { /* What code should we run when the server responds? */
-                    $('#table').html(serverResponse)
-                }
+        <script>
+            $('.ajax_form').submit(function (e) {
+                e.preventDefault()
             })
-        });
-    </script>
+            $('#ajax_tag').keyup(function () {
+                console.log('Sending Ajax request to /find')
+                console.log('Submitting the following data', $(this).parent().serialize())
+                $.ajax({
+                    url: '/find',
+                    /* Where should this go? */
+                    method: 'post',
+                    /* Which HTTP verb? */
+                    data: $(this).parent().serialize(),
+                    /* Any data to send along? */
+                    success: function (serverResponse) { /* What code should we run when the server responds? */
+                        $('#mytable').html(serverResponse)
+                    }
+                })
+            });
+        </script>
+        <script>
+            var table = '#mytable'
+            $('#maxRows').on('change', function () {
+                $('.pagination').html('')
+                var trnum = 0
+                var maxRows = parseInt($(this).val())
+                var totalRows = $(table + ' tbody tr').length
+                $(table + ' tr:gt(0)').each(function () {
+                    trnum++
+                    if (trnum > maxRows) {
+                        $(this).hide()
+                    }
+                    if (trnum <= maxRows) {
+                        $(this).show()
+                    }
+                })
+                if (totalRows > maxRows) {
+                    var pagenum = Math.ceil(totalRows / maxRows)
+                    for (var i = 1; i <= pagenum;) {
+                        $('.pagination').append('<li data-page="' + i + '">\<span>' + i++ + '<span class="sr-only">(current)</span>|</span>\</li>').show()
+                    }
+                }
+                $('.pagination li:first-child').addClass('active')
+                $('.pagination li').on('click', function () {
+                    var pageNum = $(this).attr('data-page')
+                    var trIndex = 0;
+                    $('.pagination li').removeClass('active')
+                    $(this).addClass('active')
+                    $(table + ' tr:gt(0)').each(function () {
+                        trIndex++
+                        if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                            $(this).hide()
+                        } else {
+                            $(this).show()
+                        }
+                    })
+                })
+            })
+            $(function () {
+                $('table tr:eq(0)').prepend('<th>ID</th>')
+                var id = 0;
+                $('table tr:gt(0)').each(function () {
+                    id++
+                    $(this).prepend('<td>' + id + '</td>')
+                })
+            })
+        </script>
+        <script>
+            //--------------------
+            // GET USER MEDIA CODE
+            //--------------------
+            navigator.getUserMedia = (navigator.getUserMedia ||
+                navigator.webkitGetUserMedia ||
+                navigator.mozGetUserMedia ||
+                navigator.msGetUserMedia);
 
+            var video;
+            var webcamStream;
+            var x;
+            function startWebcam() {
+                if (navigator.getUserMedia) {
+                    navigator.getUserMedia(
+
+                        // constraints
+                        {
+                            video: true,
+                            audio: false
+                        },
+
+                        // successCallback
+                        function (localMediaStream) {
+                            video = document.querySelector('video');
+                            video.src = window.URL.createObjectURL(localMediaStream);
+                            webcamStream = localMediaStream;
+                        },
+
+                        // errorCallback
+                        function (err) {
+                            console.log("The following error occured: " + err);
+                        }
+                    );
+                } else {
+                    console.log("getUserMedia not supported");
+                }
+            }
+
+            function stopWebcam() {
+                webcamStream.stop();
+            }
+            //---------------------
+            // TAKE A SNAPSHOT CODE
+            //---------------------
+            var canvas, ctx;
+
+            function init() {
+                // Get the canvas and obtain a context for
+                // drawing in it
+                canvas = document.getElementById("myCanvas");
+                ctx = canvas.getContext('2d');
+            }
+
+            function snapshot() {
+                // Draws current image from the video element into the canvas
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            }
+            function upload() {
+                var result = $('#myCanvas')[0].toDataURL();
+                var strImage = result.replace(/^data:image\/[a-z]+;base64,/, "");
+                $('#canvasdata')[0].value = strImage
+            }
+
+        </script>
 
 </body>
 

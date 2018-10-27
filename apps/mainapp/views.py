@@ -2,15 +2,18 @@ from django.shortcuts import render,redirect
 import urllib.request, json
 from openalpr import Alpr
 from argparse import ArgumentParser
+from django.contrib import messages
 import base64
+#=============================================================================================================
 with urllib.request.urlopen("https://www.cityoftulsa.org/apps/opendata/OpenData_VehicleTowList.jsn") as url:
     data = json.loads(url.read().decode())
+#=============================================================================================================
 def index(request):
     context={
         'data':data['TowList']['TowNotice']
     }
     return render(request,'mainapp/index.html',context)
-
+#=============================================================================================================
 def find(request):
     newdata=[]
     for dict in data['TowList']['TowNotice']:
@@ -20,23 +23,20 @@ def find(request):
         'data':newdata
     }
     return render(request,'mainapp/search.html',context)
+#=============================================================================================================
 def processimage(request):
+
     post=request.POST['canvasData']
     image =base64.b64decode(post)
-    filename = 'image.png'  # I assume you have a way of picking unique filenames
+    filename = 'image.png'
+    
     with open(filename, 'wb') as f:
         f.write(image)
+
     parser = ArgumentParser(description='OpenALPR Python Test Program')
-
-    parser.add_argument("-c", "--country", dest="country", action="store", default="us",
-                    help="License plate Country" )
-
-    parser.add_argument("--config", dest="config", action="store", default="/etc/openalpr/openalpr.conf",
-                    help="Path to openalpr.conf config file" )
-
-    parser.add_argument("--runtime_data", dest="runtime_data", action="store", default="/usr/share/openalpr/runtime_data",
-                    help="Path to OpenALPR runtime_data directory" )
-
+    parser.add_argument("-c", "--country", dest="country", action="store", default="us", help="License plate Country" )
+    parser.add_argument("--config", dest="config", action="store", default="/etc/openalpr/openalpr.conf", help="Path to openalpr.conf config file" )
+    parser.add_argument("--runtime_data", dest="runtime_data", action="store", default="/usr/share/openalpr/runtime_data", help="Path to OpenALPR runtime_data directory" )
     parser.add_argument('plate_image', help='License plate image file')
 
     options = parser.parse_args()
@@ -55,24 +55,23 @@ def processimage(request):
             jpeg_bytes = open(filename, "rb").read()
             results = alpr.recognize_array(jpeg_bytes)
 
-            # Uncomment to see the full results structure
-            # import pprint
-            # pprint.pprint(results)
-
             print("Image size: %dx%d" %(results['img_width'], results['img_height']))
             print("Processing Time: %f" % results['processing_time_ms'])
 
-            i = 0
             platenumber = results['results'][0]['candidates'][0]['plate']
+
             newdata=[]             
             for dict1 in data['TowList']['TowNotice']:
                 if dict1['TagNumber'].startswith(str(platenumber)):
                     newdata.append(dict1)
+
             print(platenumber)
             context={
                 'platenumber':platenumber,
                 'data':newdata
             }
+
+            i = 0
             for plate in results['results']:
                 i += 1
                 print("Plate #%d" % i)
@@ -84,7 +83,15 @@ def processimage(request):
 
                     print("  %s %12s%12f" % (prefix, candidate['plate'], candidate['confidence']))
 
+
+    except:
+        messages.error(request, 'Plate Not Detected')
+        return redirect('/')
+
+
+
     finally:
         if alpr:
             alpr.unload()
     return render(request, 'mainapp/recognition.html', context)
+#=============================================================================================================

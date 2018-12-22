@@ -9,16 +9,27 @@ with urllib.request.urlopen("https://www.cityoftulsa.org/apps/opendata/OpenData_
     data = json.loads(url.read().decode())
 #=============================================================================================================
 def index(request):
+    postlimit=100;
+    length=len(data['TowList']['TowNotice'][1:100])
+    print(length)
     context={
-        'data':data['TowList']['TowNotice']
+        'data':data['TowList']['TowNotice'][1:100]
     }
     return render(request,'mainapp/index.html',context)
 #=============================================================================================================
 def find(request):
     newdata=[]
-    for dict in data['TowList']['TowNotice']:
-        if dict['TagNumber'].startswith(request.POST['tagstartswith']):
-            newdata.append(dict)
+    for dictdata in data['TowList']['TowNotice']:
+
+        if dictdata['TagNumber'].startswith(request.POST['tagstartswith']):
+            newdata.append(dictdata)
+
+            if(len(newdata)>100):
+                context={
+                'data':newdata
+                }
+                return render(request,'mainapp/search.html',context)
+
     context={
         'data':newdata
     }

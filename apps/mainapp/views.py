@@ -42,7 +42,7 @@ def processimage(request):
     options = parser.parse_args()
     alpr = None
     try:
-        alpr = Alpr('us', filename, options.runtime_data)
+        alpr = Alpr(options.country, filename, options.runtime_data)
 
         if not alpr.is_loaded():
             print("Error loading OpenALPR")

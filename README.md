@@ -16,4 +16,5 @@ if your plate is found it will display.
 you can also search plates.
 
 TulsaRepoList: https://www.cityoftulsa.org/apps/opendata/OpenData_VehicleTowList.jsn
+
 OpenAlpr: https://github.com/openalpr/openalpr

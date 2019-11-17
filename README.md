@@ -1,5 +1,5 @@
 # TulsaReposessionProject
-Project to make Tulsa Reposession data easily accessible with automatic license plate recognition
+Project to make Tulsa Reposession data easily accessible with automatic license plate recognition.
 This project was made to run on ubuntu v16.0.4.
 dependencies are included in the requirements.txt.
 Project was made using python 3.7 and django v1.10.
@@ -11,7 +11,7 @@ Once you are able to use the alpr command line utility you can then python manag
 
 
 # Summary:
-this uses the openAlpr(automatic liscence plate recognition) to find the text on your liscence plate, then it does a simple search through the tulsa repossession list to check if the your plate is listed.
+this uses the openAlpr(automatic liscence plate recognition) to find the text on your liscence plate, then it does a simple search through the tulsa tow list to check if your plate is listed.
 if your plate is found it will display.
 you can also search plates.
 
